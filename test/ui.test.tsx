@@ -287,7 +287,7 @@ describe("permissions", () => {
     expect(strip(app.lastFrame())).toContain("› and then");
     app.unmount();
     S.store.setState({ draft: "" });
-  });
+  }, 20_000); // runs a real shell: Git Bash starts slowly on a cold Windows runner
 });
 
 describe("live", () => {
