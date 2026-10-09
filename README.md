@@ -105,20 +105,10 @@ walrus -m llama3.2:3b       # use another model for this run
 
 ## How it works
 
-```mermaid
-flowchart LR
-  U([You]) --> UI[Ink UI + HUD]
-  UI --> S[Session<br/>system prompt · skill routing · compaction]
-  S --> L[Agent loop]
-  L <-->|stream /api/chat| O[(Ollama)]
-  L --> R[Repair<br/>names · args · printed calls]
-  R --> P{Mutates?}
-  P -->|ask mode| UI
-  P --> T[Tools<br/>files · grep · shell · web · todo]
-  L --> SK[skill / agent tools]
-  SK --> SUB[Subagent loop<br/>own prompt + tool subset]
-  L --> M[MCP servers]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/diagrams/tool-call-loop-dark.png">
+  <img alt="Sequence diagram of one tool call: the Ink UI sends a prompt to the Session, the agent loop streams to Ollama, repairs and executes each tool call, and returns the answer, with an optional compaction step when context passes 80 percent." src="docs/diagrams/tool-call-loop-light.png" width="960">
+</picture>
 
 - `src/agent/` — the loop, Ollama streaming client, tool-call repair and the built-in tools.
 - `src/session.ts` — system prompt, skill routing and turn orchestration; `src/router.ts` does the embedding match.

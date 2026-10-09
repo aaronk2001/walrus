@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One tool call through the agent loop · Sequence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&family=Noto+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@400&family=Noto+Sans+TC:wght@400;500;600&family=Noto+Serif+TC:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --color-paper:   #f5f5f5;   /* white-smoke */
+      --color-ink:     #2d3142;   /* jet-black */
+      --color-muted:   #4f5d75;   /* blue-slate */
+      --color-accent:  #eb6c36;   /* atomic-tangerine */
+      --font-sans:     'Geist', system-ui, sans-serif;
+      --font-serif:    'Instrument Serif', 'Noto Serif', 'Noto Serif KR', serif;
+      --font-mono:     'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-paper);
+      color: var(--color-ink);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+    }
+
+    .frame { max-width: 1200px; width: 100%; }
+    /* The SVG holds its readable width (min-width == the viewBox width, so the
+       type ramp is never silently scaled down). This wrapper lets a narrow
+       screen scroll the diagram instead of the whole page. */
+    .diagram-container { width: 100%; overflow-x: auto; }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--color-ink);
+      margin-bottom: 1.5rem;
+    }
+
+    svg { width: 100%; min-width: 960px; display: block; }
+    /* Paper has no scrollbar, so the local scroller would clip instead of
+       scroll. Let the diagram scale down to the sheet: smaller but whole
+       beats sharp but cut off. Must come after the svg rule above - a media
+       query adds no specificity, so a later plain rule would win. */
+    @media print {
+      .diagram-container { overflow-x: visible; }
+      svg { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Sequence · Walrus</p>
+    <h1>One tool call through the agent loop</h1>
+
+    <!-- Replace tool-call-loop with a unique slug for this diagram before export. -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 960 664" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="tool-call-loop-title tool-call-loop-desc">
+        <title id="tool-call-loop-title">One tool call through the agent loop</title>
+        <desc id="tool-call-loop-desc">Sequence of a single Walrus turn: the Ink UI sends a prompt to the Session, which builds the prompt and routes skills, then the agent loop streams to Ollama in a loop of tool call, repair and execution, and result, until a final answer returns to the UI; an optional step compacts the conversation when context passes 80 percent.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+
+          <!-- OPTIONAL: dot-pattern background. Uncomment the <pattern> and the second <rect> below if you want the dotted paper look. -->
+          <!--
+          <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="1" cy="1" r="0.9" fill="rgba(45,49,66,0.10)"/>
+          </pattern>
+          -->
+        </defs>
+
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <!-- <rect width="100%" height="100%" fill="url(#dots)" opacity="0.55"/> -->
+
+        <line x1="120" y1="88" x2="120" y2="604" stroke="rgba(45,49,66,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="300" y1="88" x2="300" y2="604" stroke="rgba(45,49,66,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="480" y1="88" x2="480" y2="604" stroke="rgba(45,49,66,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="660" y1="88" x2="660" y2="604" stroke="rgba(45,49,66,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="840" y1="88" x2="840" y2="604" stroke="rgba(45,49,66,0.22)" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- LOOP fragment: while the model keeps returning tool_calls (agent/loop.ts, max 30 steps) -->
+        <rect x="424" y="224" width="452" height="180" rx="4" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <rect x="424" y="224" width="40" height="16" rx="2" fill="#f5f5f5" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <text x="444" y="236" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">LOOP</text>
+        <text x="492" y="236" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.04em">[while tool_calls · ≤ 30 steps]</text>
+        <!-- OPT fragment: compaction when context is over budget (store.ts run, then compact) -->
+        <rect x="88" y="520" width="604" height="72" rx="4" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <rect x="88" y="520" width="36" height="16" rx="2" fill="#f5f5f5" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <text x="106" y="532" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.12em">OPT</text>
+        <text x="136" y="532" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.04em">[context &gt; 80% of numCtx]</text>
+        <rect x="116" y="124" width="8" height="376" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="296" y="124" width="8" height="376" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="476" y="204" width="8" height="264" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="656" y="272" width="8" height="36" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <rect x="836" y="348" width="8" height="36" fill="rgba(45,49,66,0.06)" stroke="#4f5d75" stroke-width="0.8"/>
+        <line x1="124" y1="124" x2="296" y2="124" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <rect x="172" y="104" width="76" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="210" y="113" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SEND PROMPT</text>
+        <path d="M304 148 H324 a8 8 0 0 1 8 8 V164 a8 8 0 0 1 -8 8 H308" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <rect x="344" y="154" width="88" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="350" y="163" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.08em">PROMPT+SKILLS</text>
+        <line x1="304" y1="204" x2="476" y2="204" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <rect x="364" y="184" width="52" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="390" y="193" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">RUNLOOP</text>
+        <line x1="484" y1="272" x2="656" y2="272" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <rect x="534" y="252" width="72" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="570" y="261" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CHATSTREAM</text>
+        <line x1="656" y1="308" x2="484" y2="308" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <rect x="534" y="288" width="72" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="570" y="297" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TOOL_CALLS</text>
+        <line x1="484" y1="348" x2="836" y2="348" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <rect x="526" y="328" width="88" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="570" y="337" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">REPAIR · EXEC</text>
+        <line x1="836" y1="384" x2="484" y2="384" stroke="#eb6c36" stroke-width="1.4" stroke-dasharray="5,4" marker-end="url(#arrow-accent)"/>
+        <rect x="546" y="364" width="48" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="570" y="373" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">RESULT</text>
+        <line x1="656" y1="436" x2="484" y2="436" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <rect x="530" y="416" width="80" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="570" y="425" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FINAL ANSWER</text>
+        <line x1="476" y1="468" x2="304" y2="468" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <rect x="360" y="448" width="60" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="390" y="457" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">MESSAGES</text>
+        <line x1="296" y1="500" x2="124" y2="500" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <rect x="164" y="480" width="92" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="210" y="489" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">ANSWER+HISTORY</text>
+        <line x1="120" y1="572" x2="656" y2="572" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <rect x="358" y="552" width="64" height="12" rx="2" fill="#f5f5f5"/>
+        <text x="390" y="561" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SUMMARIZE</text>
+        <rect x="48" y="32" width="144" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="48" y="32" width="144" height="56" rx="6" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+        <rect x="56" y="40" width="32" height="12" rx="2" fill="transparent" stroke="rgba(122,131,153,0.40)" stroke-width="0.8"/>
+        <text x="72" y="49" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">UI</text>
+        <text x="120" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ink UI</text>
+        <text x="120" y="82" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">ui/ · store.ts</text>
+        <rect x="228" y="32" width="144" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="228" y="32" width="144" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="236" y="40" width="32" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+        <text x="252" y="49" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">CORE</text>
+        <text x="300" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Session</text>
+        <text x="300" y="82" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">session.ts · router.ts</text>
+        <rect x="408" y="32" width="144" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="408" y="32" width="144" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="416" y="40" width="32" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+        <text x="432" y="49" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LOOP</text>
+        <text x="480" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Agent loop</text>
+        <text x="480" y="82" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">agent/loop.ts</text>
+        <rect x="588" y="32" width="144" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="588" y="32" width="144" height="56" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+        <rect x="596" y="40" width="32" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+        <text x="612" y="49" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">LLM</text>
+        <text x="660" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Ollama</text>
+        <text x="660" y="82" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">/api/chat</text>
+        <rect x="768" y="32" width="144" height="56" rx="6" fill="#f5f5f5"/>
+        <rect x="768" y="32" width="144" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+        <rect x="776" y="40" width="36" height="12" rx="2" fill="transparent" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+        <text x="794" y="49" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TOOLS</text>
+        <text x="840" y="68" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">Tool executor</text>
+        <text x="840" y="82" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">read · edit · bash</text>
+        <line x1="56" y1="620" x2="904" y2="620" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+        <text x="56" y="636" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" letter-spacing="0.18em">LEGEND</text>
+        <line x1="56" y1="652" x2="84" y2="652" stroke="#eb6c36" stroke-width="1.4" marker-end="url(#arrow-accent)"/>
+        <text x="92" y="656" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Tool-call round trip</text>
+        <line x1="232" y1="652" x2="260" y2="652" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+        <text x="268" y="656" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Call</text>
+        <line x1="328" y1="652" x2="356" y2="652" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+        <text x="364" y="656" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Return</text>
+        <rect x="440" y="643" width="28" height="18" rx="2" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.22)" stroke-width="1"/>
+        <text x="446" y="655" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace">OPT</text>
+        <text x="476" y="656" fill="#4f5d75" font-size="8.5" font-family="'Geist', sans-serif">Fragment: loop or conditional</text>
+
+      </svg>
+    </div>
+  </div>
+</body>
+</html>
